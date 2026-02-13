@@ -103,6 +103,7 @@ function updateUI() {
 }
 
 function addTask() {
+  document.getElementById("addSound").play();
   const input = document.getElementById("taskInput");
   const difficulty = document.getElementById("difficulty").value;
   const category = document.getElementById("category").value;
@@ -121,6 +122,7 @@ function addTask() {
 }
 
 function completeTask(index) {
+  document.getElementById("taskSound").play();
   let task = tasks[index];
   let oldLevel = Math.floor(totalXP / 100);
 
@@ -135,13 +137,17 @@ function completeTask(index) {
 
   let newLevel = Math.floor(totalXP / 100);
   if (newLevel > oldLevel) {
+  document.getElementById("levelSound").play();
+
   confetti({
     particleCount: 150,
     spread: 70,
     origin: { y: 0.6 }
   });
+
   alert("🎉 LEVEL UP! You are now Level " + newLevel);
 }
+
 
   tasks.splice(index, 1);
   saveData();
@@ -149,10 +155,13 @@ function completeTask(index) {
 }
 
 function deleteTask(index) {
+  document.getElementById("failSound").play(); // ❌ failure sound
+
   tasks.splice(index, 1);
   saveData();
   updateUI();
 }
 
 updateUI();
+
 
