@@ -50,6 +50,9 @@ function login() {
 
   loadUserData();
 
+  updateLeaderboard();
+
+
   document.getElementById("auth-container").style.display = "none";
   document.getElementById("app").style.display = "block";
 }
@@ -172,6 +175,7 @@ function toggleMenu() {
 
 
 updateUI();
+
 
 
 
