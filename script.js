@@ -162,6 +162,13 @@ function deleteTask(index) {
   updateUI();
 }
 
+function toggleMenu() {
+  const menu = document.getElementById("topMenu");
+  menu.classList.toggle("open");
+}
+
+
 updateUI();
+
 
 
