@@ -7,7 +7,21 @@
 </head>
 <body>
 
-  <div id="auth-container" class="card">
+  <div id="auth-container" class="auth-wrapper">
+  <div class="auth-box">
+    <h1 class="logo">Questify</h1>
+    <p class="tagline">Level up your productivity</p>
+
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+
+    <div class="auth-buttons">
+      <button onclick="login()">Login</button>
+      <button class="secondary" onclick="register()">Register</button>
+    </div>
+  </div>
+</div>
+
   <h2>Login / Register</h2>
   <input type="text" id="username" placeholder="Username">
   <input type="password" id="password" placeholder="Password">
@@ -72,4 +86,5 @@
 
 </body>
 </html>
+
 
