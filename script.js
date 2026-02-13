@@ -45,6 +45,9 @@ function login() {
 
   currentUser = username;
 
+  document.getElementById("accountName").innerText = username;
+
+
   loadUserData();
 
   document.getElementById("auth-container").style.display = "none";
@@ -169,6 +172,7 @@ function toggleMenu() {
 
 
 updateUI();
+
 
 
 
