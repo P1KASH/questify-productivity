@@ -1,20 +1,79 @@
-let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-let totalXP = parseInt(localStorage.getItem("xp")) || 0;
-let stats = JSON.parse(localStorage.getItem("stats")) || {
-  knowledge: 0,
-  strength: 0,
-  focus: 0
-};
+let currentUser = null;
+let users = JSON.parse(localStorage.getItem("users")) || {};
 
-let streak = parseInt(localStorage.getItem("streak")) || 0;
-let lastCompleted = localStorage.getItem("lastCompleted") || null;
+let tasks = [];
+let totalXP = 0;
+let stats = {};
+let streak = 0;
+let lastCompleted = null;
+
+function register() {
+  let username = document.getElementById("username").value;
+  let password = document.getElementById("password").value;
+
+  if (!username || !password) {
+    alert("Enter username and password");
+    return;
+  }
+
+  if (users[username]) {
+    alert("User already exists");
+    return;
+  }
+
+  users[username] = {
+    password: password,
+    tasks: [],
+    xp: 0,
+    stats: { knowledge: 0, strength: 0, focus: 0 },
+    streak: 0,
+    lastCompleted: null
+  };
+
+  localStorage.setItem("users", JSON.stringify(users));
+  alert("Registered successfully!");
+}
+
+function login() {
+  let username = document.getElementById("username").value;
+  let password = document.getElementById("password").value;
+
+  if (!users[username] || users[username].password !== password) {
+    alert("Invalid credentials");
+    return;
+  }
+
+  currentUser = username;
+
+  loadUserData();
+
+  document.getElementById("auth-container").style.display = "none";
+  document.getElementById("app").style.display = "block";
+}
+
+function loadUserData() {
+  let userData = users[currentUser];
+
+  tasks = userData.tasks;
+  totalXP = userData.xp;
+  stats = userData.stats;
+  streak = userData.streak;
+  lastCompleted = userData.lastCompleted;
+
+  updateUI();
+}
+
 
 function saveData() {
-  localStorage.setItem("tasks", JSON.stringify(tasks));
-  localStorage.setItem("xp", totalXP);
-  localStorage.setItem("stats", JSON.stringify(stats));
-  localStorage.setItem("streak", streak);
+  users[currentUser].tasks = tasks;
+  users[currentUser].xp = totalXP;
+  users[currentUser].stats = stats;
+  users[currentUser].streak = streak;
+  users[currentUser].lastCompleted = lastCompleted;
+
+  localStorage.setItem("users", JSON.stringify(users));
 }
+
 
 function updateUI() {
   document.getElementById("level").innerText = Math.floor(totalXP / 100);
@@ -96,3 +155,4 @@ function deleteTask(index) {
 }
 
 updateUI();
+
