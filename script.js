@@ -44,13 +44,15 @@ function login() {
   }
 
   currentUser = username;
-
   document.getElementById("accountName").innerText = username;
 
-
   loadUserData();
-
   updateLeaderboard();
+
+  document.getElementById("auth-container").style.display = "none";
+  document.getElementById("app").style.display = "block";
+}
+
 
   
 
@@ -178,6 +180,7 @@ function toggleMenu() {
 
 
 updateUI();
+
 
 
 
