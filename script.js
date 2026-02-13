@@ -87,17 +87,28 @@ function saveData() {
 
 
 function updateUI() {
-  document.getElementById("level").innerText = Math.floor(totalXP / 100);
-  document.getElementById("streak").innerText = streak;
+  if (!currentUser) return;
+
+  const levelEl = document.getElementById("level");
+  const streakEl = document.getElementById("streak");
+  const knowledgeEl = document.getElementById("knowledge");
+  const strengthEl = document.getElementById("strength");
+  const focusEl = document.getElementById("focus");
+
+  if (levelEl) levelEl.innerText = Math.floor(totalXP / 100);
+  if (streakEl) streakEl.innerText = streak;
 
   let currentXP = totalXP % 100;
-  document.getElementById("xp-bar").style.width = currentXP + "%";
+  const xpBar = document.getElementById("xp-bar");
+  if (xpBar) xpBar.style.width = currentXP + "%";
 
-  document.getElementById("knowledge").innerText = stats.knowledge;
-  document.getElementById("strength").innerText = stats.strength;
-  document.getElementById("focus").innerText = stats.focus;
+  if (knowledgeEl) knowledgeEl.innerText = stats.knowledge;
+  if (strengthEl) strengthEl.innerText = stats.strength;
+  if (focusEl) focusEl.innerText = stats.focus;
 
   const list = document.getElementById("taskList");
+  if (!list) return;
+
   list.innerHTML = "";
 
   tasks.forEach((task, index) => {
@@ -180,6 +191,7 @@ function toggleMenu() {
 
 
 updateUI();
+
 
 
 
