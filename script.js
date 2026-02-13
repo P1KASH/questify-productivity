@@ -52,6 +52,9 @@ function login() {
 
   updateLeaderboard();
 
+  if (Object.keys(users).length === 0) return;
+
+
 
   document.getElementById("auth-container").style.display = "none";
   document.getElementById("app").style.display = "block";
@@ -175,6 +178,7 @@ function toggleMenu() {
 
 
 updateUI();
+
 
 
 
