@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Prodigy – Productivity RPG</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="container">
+
+    <header>
+      <h1>Prodigy</h1>
+      <div class="player-info">
+        <p>Level: <span id="level">0</span></p>
+        <p>🔥 Streak: <span id="streak">0</span></p>
+      </div>
+    </header>
+
+    <div class="xp-container">
+      <div class="xp-bar" id="xp-bar"></div>
+    </div>
+
+    <div class="card">
+      <h2>Add Task</h2>
+      <input type="text" id="taskInput" placeholder="Enter task...">
+      
+      <select id="difficulty">
+        <option value="10">Easy (+10 XP)</option>
+        <option value="25">Medium (+25 XP)</option>
+        <option value="50">Hard (+50 XP)</option>
+      </select>
+
+      <select id="category">
+        <option value="knowledge">Study</option>
+        <option value="strength">Gym</option>
+        <option value="focus">Coding</option>
+      </select>
+
+      <button onclick="addTask()">Add Task</button>
+    </div>
+
+    <div class="card">
+      <h2>Tasks</h2>
+      <ul id="taskList"></ul>
+    </div>
+
+    <div class="card">
+      <h2>Stats</h2>
+      <p>📘 Knowledge: <span id="knowledge">0</span></p>
+      <p>💪 Strength: <span id="strength">0</span></p>
+      <p>💻 Focus: <span id="focus">0</span></p>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+</body>
+</html>
