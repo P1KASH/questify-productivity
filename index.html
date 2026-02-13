@@ -1,128 +1,174 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Prodigy – Productivity RPG</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
+let currentUser = null;
+let users = JSON.parse(localStorage.getItem("users")) || {};
 
-  <div id="auth-container" class="auth-wrapper">
-  <div class="auth-box">
-    <h1 class="logo">Questify</h1>
-    <p class="tagline">Level up your productivity</p>
+let tasks = [];
+let totalXP = 0;
+let stats = {};
+let streak = 0;
+let lastCompleted = null;
 
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
+function register() {
+  let username = document.getElementById("username").value;
+  let password = document.getElementById("password").value;
 
-    <div class="auth-buttons">
-      <button onclick="login()">Login</button>
-      <button class="secondary" onclick="register()">Register</button>
-    </div>
-  </div>
-</div>
+  if (!username || !password) {
+    alert("Enter username and password");
+    return;
+  }
 
-  
+  if (users[username]) {
+    alert("User already exists");
+    return;
+  }
 
-<div id="app" style="display:none;">
-  <div class="container">
-
-
-
-    <header>
-      <h1>Prodigy</h1>
-      <div class="player-info">
-        <p>Level: <span id="level">0</span></p>
-        <p>🔥 Streak: <span id="streak">0</span></p>
-      </div>
-    </header>
-
-    <div class="xp-container">
-      <div class="xp-bar" id="xp-bar"></div>
-    </div>
-
-    <div class="card">
-      <h2>Add Task</h2>
-      <input type="text" id="taskInput" placeholder="Enter task...">
-      
-      <select id="difficulty">
-        <option value="10">Easy (+10 XP)</option>
-        <option value="25">Medium (+25 XP)</option>
-        <option value="50">Hard (+50 XP)</option>
-      </select>
-
-      <select id="category">
-        <option value="knowledge">Study</option>
-        <option value="strength">Gym</option>
-        <option value="focus">Coding</option>
-      </select>
-
-      <button onclick="addTask()">Add Task</button>
-    </div>
-
-    <div class="card">
-      <h2>Tasks</h2>
-      <ul id="taskList"></ul>
-    </div>
-
-    <div class="card">
-  <h2>Stats</h2>
-
-  <div class="stat">
-    <span>📘 Knowledge</span>
-    <div class="stat-bar">
-      <div id="knowledge-bar" class="stat-fill blue"></div>
-    </div>
-  </div>
-
-  <div class="stat">
-    <span>💪 Strength</span>
-    <div class="stat-bar">
-      <div id="strength-bar" class="stat-fill red"></div>
-    </div>
-  </div>
-
-  <div class="stat">
-    <span>💻 Focus</span>
-    <div class="stat-bar">
-      <div id="focus-bar" class="stat-fill green"></div>
-    </div>
-  </div>
-</div>
-
-
-  </div>
-
-  <script src="script.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
-</div>
-<audio id="taskSound" src="sounds/task.mp3"></audio>
-<audio id="levelSound" src="sounds/levelup.mp3"></audio>
-<audio id="failSound" src="sounds/fail.mp3"></audio>
-<audio id="addSound" src="sounds/add.mp3"></audio>
-
-<!-- Confetti -->
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyBP3M32Ymumv4CENtktjJ75OM4f7wlYX50",
-    authDomain: "questify-productivity.firebaseapp.com",
-    projectId: "questify-productivity",
-    storageBucket: "questify-productivity.firebasestorage.app",
-    messagingSenderId: "266314544286",
-    appId: "1:266314544286:web:f07d65c02273ecc0c1b78f"
+  users[username] = {
+    password: password,
+    tasks: [],
+    xp: 0,
+    stats: { knowledge: 0, strength: 0, focus: 0 },
+    streak: 0,
+    lastCompleted: null
   };
 
-  const app = initializeApp(firebaseConfig);
-  window.auth = getAuth(app);
-  window.db = getFiresto
+  localStorage.setItem("users", JSON.stringify(users));
+  alert("Registered successfully!");
+}
+
+function login() {
+  let username = document.getElementById("username").value;
+  let password = document.getElementById("password").value;
+
+  if (!users[username] || users[username].password !== password) {
+    alert("Invalid credentials");
+    return;
+  }
+
+  currentUser = username;
+
+  loadUserData();
+
+  document.getElementById("auth-container").style.display = "none";
+  document.getElementById("app").style.display = "block";
+}
+
+function loadUserData() {
+  let userData = users[currentUser];
+
+  tasks = userData.tasks;
+  totalXP = userData.xp;
+  stats = userData.stats;
+  streak = userData.streak;
+  lastCompleted = userData.lastCompleted;
+
+  updateUI();
+}
 
 
-<script src="script.js"></script>
-</body>
-</html>
+function saveData() {
+  users[currentUser].tasks = tasks;
+  users[currentUser].xp = totalXP;
+  users[currentUser].stats = stats;
+  users[currentUser].streak = streak;
+  users[currentUser].lastCompleted = lastCompleted;
+
+  localStorage.setItem("users", JSON.stringify(users));
+}
+
+
+function updateUI() {
+  document.getElementById("level").innerText = Math.floor(totalXP / 100);
+  document.getElementById("streak").innerText = streak;
+
+  let currentXP = totalXP % 100;
+  document.getElementById("xp-bar").style.width = currentXP + "%";
+
+ 
+  const list = document.getElementById("taskList");
+  list.innerHTML = "";
+
+  tasks.forEach((task, index) => {
+    let li = document.createElement("li");
+    li.innerHTML = `
+      ${task.name}
+      <div>
+        <button onclick="completeTask(${index})">✔</button>
+        <button class="delete-btn" onclick="deleteTask(${index})">X</button>
+      </div>
+    `;
+    list.appendChild(li);
+  });
+  // 🔹 UPDATE RPG STAT BARS
+  document.getElementById("knowledge-bar").style.width =
+    Math.min(stats.knowledge * 10, 100) + "%";
+
+  document.getElementById("strength-bar").style.width =
+    Math.min(stats.strength * 10, 100) + "%";
+
+  document.getElementById("focus-bar").style.width =
+    Math.min(stats.focus * 10, 100) + "%";
+
+}
+
+function addTask() {
+  document.getElementById("addSound").play();
+  const input = document.getElementById("taskInput");
+  const difficulty = document.getElementById("difficulty").value;
+  const category = document.getElementById("category").value;
+
+  if (input.value.trim() === "") return;
+
+  tasks.push({
+    name: input.value,
+    xp: parseInt(difficulty),
+    category: category
+  });
+
+  input.value = "";
+  saveData();
+  updateUI();
+}
+
+function completeTask(index) {
+  document.getElementById("taskSound").play();
+  let task = tasks[index];
+  let oldLevel = Math.floor(totalXP / 100);
+
+  totalXP += task.xp;
+  stats[task.category] += 1;
+
+  let today = new Date().toDateString();
+  if (lastCompleted !== today) {
+    streak++;
+    localStorage.setItem("lastCompleted", today);
+  }
+
+  let newLevel = Math.floor(totalXP / 100);
+  if (newLevel > oldLevel) {
+  document.getElementById("levelSound").play();
+
+  confetti({
+    particleCount: 150,
+    spread: 70,
+    origin: { y: 0.6 }
+  });
+
+  alert("🎉 LEVEL UP! You are now Level " + newLevel);
+}
+
+
+  tasks.splice(index, 1);
+  saveData();
+  updateUI();
+}
+
+function deleteTask(index) {
+  document.getElementById("failSound").play(); // ❌ failure sound
+
+  tasks.splice(index, 1);
+  saveData();
+  updateUI();
+}
+
+updateUI();
+
+
