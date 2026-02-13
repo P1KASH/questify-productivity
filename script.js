@@ -1,174 +1,233 @@
-let currentUser = null;
-let users = JSON.parse(localStorage.getItem("users")) || {};
-
-let tasks = [];
-let totalXP = 0;
-let stats = {};
-let streak = 0;
-let lastCompleted = null;
-
-function register() {
-  let username = document.getElementById("username").value;
-  let password = document.getElementById("password").value;
-
-  if (!username || !password) {
-    alert("Enter username and password");
-    return;
-  }
-
-  if (users[username]) {
-    alert("User already exists");
-    return;
-  }
-
-  users[username] = {
-    password: password,
-    tasks: [],
-    xp: 0,
-    stats: { knowledge: 0, strength: 0, focus: 0 },
-    streak: 0,
-    lastCompleted: null
-  };
-
-  localStorage.setItem("users", JSON.stringify(users));
-  alert("Registered successfully!");
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0f172a;
+  color: white;
 }
 
-function login() {
-  let username = document.getElementById("username").value;
-  let password = document.getElementById("password").value;
-
-  if (!users[username] || users[username].password !== password) {
-    alert("Invalid credentials");
-    return;
-  }
-
-  currentUser = username;
-
-  loadUserData();
-
-  document.getElementById("auth-container").style.display = "none";
-  document.getElementById("app").style.display = "block";
+.container {
+  width: 90%;
+  max-width: 700px;
+  margin: auto;
+  padding: 20px;
 }
 
-function loadUserData() {
-  let userData = users[currentUser];
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-  tasks = userData.tasks;
-  totalXP = userData.xp;
-  stats = userData.stats;
-  streak = userData.streak;
-  lastCompleted = userData.lastCompleted;
+.card {
+  background: rgba(255,255,255,0.05);
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 12px;
+}
 
-  updateUI();
+input, select, button {
+  padding: 10px;
+  margin-top: 10px;
+  width: 100%;
+  border-radius: 8px;
+  border: none;
+}
+
+button {
+  background: #3b82f6;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #2563eb;
+}
+
+.xp-container {
+  width: 100%;
+  height: 20px;
+  background: #1e293b;
+  border-radius: 10px;
+  margin-top: 20px;
+}
+
+.xp-bar {
+  height: 100%;
+  width: 0%;
+  background: #22c55e;
+  border-radius: 10px;
+  transition: width 0.3s ease;
+}
+
+li {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  background: rgba(255,255,255,0.05);
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.delete-btn {
+  background: #ef4444;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+button {
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
+
+/* ===== AUTH PAGE ===== */
+
+.auth-wrapper {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+}
+
+.auth-box {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 40px 35px;
+  border-radius: 16px;
+  width: 320px;
+  text-align: center;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+.logo {
+  font-size: 32px;
+  margin-bottom: 5px;
+  font-weight: bold;
+  background: linear-gradient(90deg, #3b82f6, #22c55e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.tagline {
+  font-size: 14px;
+  opacity: 0.7;
+  margin-bottom: 25px;
+}
+
+.auth-box input {
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  background: rgba(255,255,255,0.08);
+  color: white;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.auth-buttons button {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.auth-buttons button:first-child {
+  background: #3b82f6;
+  color: white;
+}
+
+.auth-buttons button:first-child:hover {
+  background: #2563eb;
+}
+
+.auth-buttons .secondary {
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+
+.auth-buttons .secondary:hover {
+  background: rgba(255,255,255,0.2);
 }
 
 
-function saveData() {
-  users[currentUser].tasks = tasks;
-  users[currentUser].xp = totalXP;
-  users[currentUser].stats = stats;
-  users[currentUser].streak = streak;
-  users[currentUser].lastCompleted = lastCompleted;
+.card:hover {
+  border: 1px solid rgba(255,255,255,0.15);
+}
+/* RPG Stat Bars */
+.stat {
+  margin-top: 15px;
+}
 
-  localStorage.setItem("users", JSON.stringify(users));
+.stat span {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+/* Pixel RPG stat bars */
+.stat-bar {
+  width: 100%;
+  height: 18px;
+  background-color: #020617; /* darker than before */
+  border: 2px solid #64748b;
+  padding: 2px;
+  box-sizing: border-box;
+}
+
+.stat-fill {
+  height: 100%;
+  width: 0%;
+  background-size: 8px 100%;
+  image-rendering: pixelated;
+  transition: width 0.15s steps(10);
+}
+
+/* Pixel block patterns */
+/* Pixel block patterns with visible gaps */
+.blue {
+  background-image: repeating-linear-gradient(
+    to right,
+    #38bdf8 0px,
+    #38bdf8 10px,
+    #020617 10px,
+    #020617 14px
+  );
+}
+
+.red {
+  background-image: repeating-linear-gradient(
+    to right,
+    #f87171 0px,
+    #f87171 10px,
+    #020617 10px,
+    #020617 14px
+  );
+}
+
+.green {
+  background-image: repeating-linear-gradient(
+    to right,
+    #4ade80 0px,
+    #4ade80 10px,
+    #020617 10px,
+    #020617 14px
+  );
 }
 
 
-function updateUI() {
-  document.getElementById("level").innerText = Math.floor(totalXP / 100);
-  document.getElementById("streak").innerText = streak;
 
-  let currentXP = totalXP % 100;
-  document.getElementById("xp-bar").style.width = currentXP + "%";
-
- 
-  const list = document.getElementById("taskList");
-  list.innerHTML = "";
-
-  tasks.forEach((task, index) => {
-    let li = document.createElement("li");
-    li.innerHTML = `
-      ${task.name}
-      <div>
-        <button onclick="completeTask(${index})">✔</button>
-        <button class="delete-btn" onclick="deleteTask(${index})">X</button>
-      </div>
-    `;
-    list.appendChild(li);
-  });
-  // 🔹 UPDATE RPG STAT BARS
-  document.getElementById("knowledge-bar").style.width =
-    Math.min(stats.knowledge * 10, 100) + "%";
-
-  document.getElementById("strength-bar").style.width =
-    Math.min(stats.strength * 10, 100) + "%";
-
-  document.getElementById("focus-bar").style.width =
-    Math.min(stats.focus * 10, 100) + "%";
-
-}
-
-function addTask() {
-  document.getElementById("addSound").play();
-  const input = document.getElementById("taskInput");
-  const difficulty = document.getElementById("difficulty").value;
-  const category = document.getElementById("category").value;
-
-  if (input.value.trim() === "") return;
-
-  tasks.push({
-    name: input.value,
-    xp: parseInt(difficulty),
-    category: category
-  });
-
-  input.value = "";
-  saveData();
-  updateUI();
-}
-
-function completeTask(index) {
-  document.getElementById("taskSound").play();
-  let task = tasks[index];
-  let oldLevel = Math.floor(totalXP / 100);
-
-  totalXP += task.xp;
-  stats[task.category] += 1;
-
-  let today = new Date().toDateString();
-  if (lastCompleted !== today) {
-    streak++;
-    localStorage.setItem("lastCompleted", today);
-  }
-
-  let newLevel = Math.floor(totalXP / 100);
-  if (newLevel > oldLevel) {
-  document.getElementById("levelSound").play();
-
-  confetti({
-    particleCount: 150,
-    spread: 70,
-    origin: { y: 0.6 }
-  });
-
-  alert("🎉 LEVEL UP! You are now Level " + newLevel);
-}
-
-
-  tasks.splice(index, 1);
-  saveData();
-  updateUI();
-}
-
-function deleteTask(index) {
-  document.getElementById("failSound").play(); // ❌ failure sound
-
-  tasks.splice(index, 1);
-  saveData();
-  updateUI();
-}
-
-updateUI();
-
+.blue { background: #38bdf8; }
+.red { background: #f87171; }
+.green { background: #4ade80; }
 
