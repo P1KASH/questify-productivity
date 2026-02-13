@@ -44,19 +44,8 @@ function login() {
   }
 
   currentUser = username;
-  document.getElementById("accountName").innerText = username;
 
   loadUserData();
-  updateLeaderboard();
-
-  document.getElementById("auth-container").style.display = "none";
-  document.getElementById("app").style.display = "block";
-}
-
-
-  
-
-
 
   document.getElementById("auth-container").style.display = "none";
   document.getElementById("app").style.display = "block";
@@ -87,28 +76,14 @@ function saveData() {
 
 
 function updateUI() {
-  if (!currentUser) return;
-
-  const levelEl = document.getElementById("level");
-  const streakEl = document.getElementById("streak");
-  const knowledgeEl = document.getElementById("knowledge");
-  const strengthEl = document.getElementById("strength");
-  const focusEl = document.getElementById("focus");
-
-  if (levelEl) levelEl.innerText = Math.floor(totalXP / 100);
-  if (streakEl) streakEl.innerText = streak;
+  document.getElementById("level").innerText = Math.floor(totalXP / 100);
+  document.getElementById("streak").innerText = streak;
 
   let currentXP = totalXP % 100;
-  const xpBar = document.getElementById("xp-bar");
-  if (xpBar) xpBar.style.width = currentXP + "%";
+  document.getElementById("xp-bar").style.width = currentXP + "%";
 
-  if (knowledgeEl) knowledgeEl.innerText = stats.knowledge;
-  if (strengthEl) strengthEl.innerText = stats.strength;
-  if (focusEl) focusEl.innerText = stats.focus;
-
+ 
   const list = document.getElementById("taskList");
-  if (!list) return;
-
   list.innerHTML = "";
 
   tasks.forEach((task, index) => {
@@ -122,6 +97,16 @@ function updateUI() {
     `;
     list.appendChild(li);
   });
+  // 🔹 UPDATE RPG STAT BARS
+  document.getElementById("knowledge-bar").style.width =
+    Math.min(stats.knowledge * 10, 100) + "%";
+
+  document.getElementById("strength-bar").style.width =
+    Math.min(stats.strength * 10, 100) + "%";
+
+  document.getElementById("focus-bar").style.width =
+    Math.min(stats.focus * 10, 100) + "%";
+
 }
 
 function addTask() {
@@ -184,19 +169,6 @@ function deleteTask(index) {
   updateUI();
 }
 
-function toggleMenu() {
-  const menu = document.getElementById("topMenu");
-  menu.classList.toggle("open");
-}
-
-
 updateUI();
-
-
-
-
-
-
-
 
 
