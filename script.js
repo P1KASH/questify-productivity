@@ -52,7 +52,7 @@ function login() {
 
   updateLeaderboard();
 
-  if (Object.keys(users).length === 0) return;
+  
 
 
 
@@ -178,6 +178,7 @@ function toggleMenu() {
 
 
 updateUI();
+
 
 
 
