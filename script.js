@@ -33,11 +33,14 @@ const db = getFirestore(app);
 window.logout = async function () {
   try {
     await signOut(auth);
+    resetGameState(); // 🔥 IMPORTANT
     console.log("User logged out");
   } catch (error) {
     console.error("Logout error:", error);
   }
 };
+
+
 // ===== GAME STATE (CLOUD SYNCED) =====
 let tasks = [];
 let totalXP = 0;
@@ -103,6 +106,7 @@ window.register = async function () {
   }
 };
 
+
 window.login = async function () {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -125,14 +129,19 @@ window.login = async function () {
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
+    resetGameState(); // 🔥 CLEAR OLD USER DATA FIRST
+
     document.getElementById("auth-container").style.display = "none";
     document.getElementById("app").style.display = "block";
-    loadUserData(); // 🔥 THIS LINE MAKES SYNC WORK
+
+    loadUserData(); // then load correct data
+    loadLeaderboard();
   } else {
     document.getElementById("auth-container").style.display = "flex";
     document.getElementById("app").style.display = "none";
   }
 });
+
 // ===============================
 // 🎮 GAME LOGIC (GLOBAL FOR HTML)
 // ===============================
@@ -225,3 +234,11 @@ window.deleteTask = function (index) {
   saveUserData();
   updateUI();
 };
+function resetGameState() {
+  tasks = [];
+  totalXP = 0;
+  stats = { knowledge: 0, strength: 0, focus: 0 };
+  streak = 0;
+  lastCompleted = null;
+  updateUI();
+}
