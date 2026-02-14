@@ -230,4 +230,17 @@ button:hover {
 .blue { background: #38bdf8; }
 .red { background: #f87171; }
 .green { background: #4ade80; }
+.logout-btn {
+  margin-top: 8px;
+  padding: 6px 12px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
 
+.logout-btn:hover {
+  background: #dc2626;
+}
