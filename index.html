@@ -1,19 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Questify – Productivity RPG</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <div id="auth-container" class="auth-wrapper">
+<!-- AUTH -->
+<div id="auth-container" class="auth-wrapper">
   <div class="auth-box">
     <h1 class="logo">Questify</h1>
     <p class="tagline">Level up your productivity</p>
 
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
 
     <div class="auth-buttons">
       <button onclick="login()">Login</button>
@@ -22,20 +23,22 @@
   </div>
 </div>
 
-  
-
+<!-- APP -->
 <div id="app" style="display:none;">
   <div class="container">
 
+   <header>
+  <h1>Questify</h1>
 
+  <div class="player-info">
+    <p>Level: <span id="level">0</span></p>
+    <p>🔥 Streak: <span id="streak">0</span></p>
 
-    <header>
-      <h1>Questify</h1>
-      <div class="player-info">
-        <p>Level: <span id="level">0</span></p>
-        <p>🔥 Streak: <span id="streak">0</span></p>
-      </div>
-    </header>
+    <!-- LOGOUT BUTTON -->
+    <button onclick="logout()" class="logout-btn">Logout</button>
+  </div>
+</header>
+
 
     <div class="xp-container">
       <div class="xp-bar" id="xp-bar"></div>
@@ -43,8 +46,8 @@
 
     <div class="card">
       <h2>Add Task</h2>
-      <input type="text" id="taskInput" placeholder="Enter task...">
-      
+      <input type="text" id="taskInput" placeholder="Enter task..." />
+
       <select id="difficulty">
         <option value="10">Easy (+10 XP)</option>
         <option value="25">Medium (+25 XP)</option>
@@ -66,37 +69,34 @@
     </div>
 
     <div class="card">
-  <h2>Stats</h2>
+      <h2>Stats</h2>
 
-  <div class="stat">
-    <span>📘 Knowledge</span>
-    <div class="stat-bar">
-      <div id="knowledge-bar" class="stat-fill blue"></div>
-    </div>
-  </div>
+      <div class="stat">
+        <span>📘 Knowledge</span>
+        <div class="stat-bar">
+          <div id="knowledge-bar" class="stat-fill blue"></div>
+        </div>
+      </div>
 
-  <div class="stat">
-    <span>💪 Strength</span>
-    <div class="stat-bar">
-      <div id="strength-bar" class="stat-fill red"></div>
-    </div>
-  </div>
+      <div class="stat">
+        <span>💪 Strength</span>
+        <div class="stat-bar">
+          <div id="strength-bar" class="stat-fill red"></div>
+        </div>
+      </div>
 
-  <div class="stat">
-    <span>💻 Focus</span>
-    <div class="stat-bar">
-      <div id="focus-bar" class="stat-fill green"></div>
+      <div class="stat">
+        <span>💻 Focus</span>
+        <div class="stat-bar">
+          <div id="focus-bar" class="stat-fill green"></div>
+        </div>
+      </div>
     </div>
+
   </div>
 </div>
 
-
-  </div>
-
-  <script src="script.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
-</div>
+<!-- Sounds -->
 <audio id="taskSound" src="sounds/task.mp3"></audio>
 <audio id="levelSound" src="sounds/levelup.mp3"></audio>
 <audio id="failSound" src="sounds/fail.mp3"></audio>
@@ -104,30 +104,9 @@
 
 <!-- Confetti -->
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBP3M32Ymumv4CENtktjJ75OM4f7wlYX50",
-    authDomain: "questify-productivity.firebaseapp.com",
-    projectId: "questify-productivity",
-    storageBucket: "questify-productivity.firebasestorage.app",
-    messagingSenderId: "266314544286",
-    appId: "1:266314544286:web:f07d65c02273ecc0c1b78f"
-  };
+<!-- MAIN SCRIPT -->
+<script type="module" src="script.js"></script>
 
-  const app = initializeApp(firebaseConfig);
-  window.auth = getAuth(app);
-  window.db = getFiresto
-
-
-<script src="script.js"></script>
 </body>
 </html>
-
-
-
-
-
