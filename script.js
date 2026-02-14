@@ -11,7 +11,12 @@ import {
   getFirestore,
   doc,
   setDoc,
-  getDoc
+  getDoc,
+  collection,
+  getDocs,
+  query,
+  orderBy,
+  limit
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 
@@ -54,12 +59,15 @@ async function saveUserData() {
   const uid = auth.currentUser.uid;
 
   await setDoc(doc(db, "users", uid), {
-    tasks,
-    totalXP,
-    stats,
-    streak,
-    lastCompleted
-  });
+  email: auth.currentUser.email,
+  totalXP,
+  level: Math.floor(totalXP / 100),
+  tasks,
+  stats,
+  streak,
+  lastCompleted
+});
+
 }
 // ===== FIRESTORE LOAD =====
 async function loadUserData() {
@@ -241,4 +249,41 @@ function resetGameState() {
   streak = 0;
   lastCompleted = null;
   updateUI();
+}
+
+async function loadLeaderboard() {
+  const leaderboardList = document.getElementById("leaderboardList");
+  if (!leaderboardList) return;
+
+  leaderboardList.innerHTML = "";
+
+  const q = query(
+    collection(db, "users"),
+    orderBy("totalXP", "desc"),
+    limit(10)
+  );
+
+  const querySnapshot = await getDocs(q);
+
+  let rank = 1;
+
+  querySnapshot.forEach((doc) => {
+    const data = doc.data();
+
+    const li = document.createElement("li");
+    let medal = "";
+        if (rank === 1) medal = "🥇";
+        else if (rank === 2) medal = "🥈";
+          else if (rank === 3) medal = "🥉";
+
+li.innerHTML = `
+  ${medal} <strong>#${rank}</strong> 
+  ${data.email} 
+  — ${data.totalXP || 0} XP
+`;
+
+
+    leaderboardList.appendChild(li);
+    rank++;
+  });
 }
