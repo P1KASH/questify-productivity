@@ -1,79 +1,141 @@
-let currentUser = null;
-let users = JSON.parse(localStorage.getItem("users")) || {};
+// 🔥 FIREBASE IMPORTS
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+
+
+// 🔥 FIREBASE CONFIG
+const firebaseConfig = {
+  apiKey: "AIzaSyBP3M32Ymumv4CENtktjJ75OM4f7wlYX50",
+  authDomain: "questify-productivity.firebaseapp.com",
+  projectId: "questify-productivity",
+  storageBucket: "questify-productivity.firebasestorage.app",
+  messagingSenderId: "266314544286",
+  appId: "1:266314544286:web:f07d65c02273ecc0c1b78f"
+};
+
+// 🔥 INIT
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+window.logout = async function () {
+  try {
+    await signOut(auth);
+    console.log("User logged out");
+  } catch (error) {
+    console.error("Logout error:", error);
+  }
+};
+// ===== GAME STATE (CLOUD SYNCED) =====
 let tasks = [];
 let totalXP = 0;
-let stats = {};
+let stats = { knowledge: 0, strength: 0, focus: 0 };
 let streak = 0;
 let lastCompleted = null;
+// ===== FIRESTORE SAVE =====
+async function saveUserData() {
+  if (!auth.currentUser) return;
 
-function register() {
-  let username = document.getElementById("username").value;
-  let password = document.getElementById("password").value;
+  const uid = auth.currentUser.uid;
 
-  if (!username || !password) {
-    alert("Enter username and password");
-    return;
-  }
-
-  if (users[username]) {
-    alert("User already exists");
-    return;
-  }
-
-  users[username] = {
-    password: password,
-    tasks: [],
-    xp: 0,
-    stats: { knowledge: 0, strength: 0, focus: 0 },
-    streak: 0,
-    lastCompleted: null
-  };
-
-  localStorage.setItem("users", JSON.stringify(users));
-  alert("Registered successfully!");
+  await setDoc(doc(db, "users", uid), {
+    tasks,
+    totalXP,
+    stats,
+    streak,
+    lastCompleted
+  });
 }
+// ===== FIRESTORE LOAD =====
+async function loadUserData() {
+  if (!auth.currentUser) return;
 
-function login() {
-  let username = document.getElementById("username").value;
-  let password = document.getElementById("password").value;
+  const uid = auth.currentUser.uid;
+  const ref = doc(db, "users", uid);
+  const snap = await getDoc(ref);
 
-  if (!users[username] || users[username].password !== password) {
-    alert("Invalid credentials");
-    return;
+  if (snap.exists()) {
+    const data = snap.data();
+    tasks = data.tasks || [];
+    totalXP = data.totalXP || 0;
+    stats = data.stats || { knowledge: 0, strength: 0, focus: 0 };
+    streak = data.streak || 0;
+    lastCompleted = data.lastCompleted || null;
+  } else {
+    // First-time user → create document
+    await saveUserData();
   }
-
-  currentUser = username;
-
-  loadUserData();
-
-  document.getElementById("auth-container").style.display = "none";
-  document.getElementById("app").style.display = "block";
-}
-
-function loadUserData() {
-  let userData = users[currentUser];
-
-  tasks = userData.tasks;
-  totalXP = userData.xp;
-  stats = userData.stats;
-  streak = userData.streak;
-  lastCompleted = userData.lastCompleted;
 
   updateUI();
 }
 
 
-function saveData() {
-  users[currentUser].tasks = tasks;
-  users[currentUser].xp = totalXP;
-  users[currentUser].stats = stats;
-  users[currentUser].streak = streak;
-  users[currentUser].lastCompleted = lastCompleted;
+// ===============================
+// 🔐 AUTH FUNCTIONS
+// ===============================
 
-  localStorage.setItem("users", JSON.stringify(users));
-}
+window.register = async function () {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
+  if (!email || !password) {
+    alert("Enter email and password");
+    return;
+  }
+
+  try {
+    await createUserWithEmailAndPassword(auth, email, password);
+    alert("Registered successfully!");
+  } catch (error) {
+    alert(error.message);
+  }
+};
+
+window.login = async function () {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  if (!email || !password) {
+    alert("Enter email and password");
+    return;
+  }
+
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+  } catch (error) {
+    alert("Invalid login credentials");
+  }
+};
+
+// ===============================
+// 🔄 AUTH STATE LISTENER
+// ===============================
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    document.getElementById("auth-container").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    loadUserData(); // 🔥 THIS LINE MAKES SYNC WORK
+  } else {
+    document.getElementById("auth-container").style.display = "flex";
+    document.getElementById("app").style.display = "none";
+  }
+});
+// ===============================
+// 🎮 GAME LOGIC (GLOBAL FOR HTML)
+// ===============================
 
 function updateUI() {
   document.getElementById("level").innerText = Math.floor(totalXP / 100);
@@ -82,7 +144,6 @@ function updateUI() {
   let currentXP = totalXP % 100;
   document.getElementById("xp-bar").style.width = currentXP + "%";
 
- 
   const list = document.getElementById("taskList");
   list.innerHTML = "";
 
@@ -97,7 +158,7 @@ function updateUI() {
     `;
     list.appendChild(li);
   });
-  // 🔹 UPDATE RPG STAT BARS
+
   document.getElementById("knowledge-bar").style.width =
     Math.min(stats.knowledge * 10, 100) + "%";
 
@@ -106,11 +167,12 @@ function updateUI() {
 
   document.getElementById("focus-bar").style.width =
     Math.min(stats.focus * 10, 100) + "%";
-
 }
 
-function addTask() {
+// 🔥 MUST BE window.addTask
+window.addTask = function () {
   document.getElementById("addSound").play();
+
   const input = document.getElementById("taskInput");
   const difficulty = document.getElementById("difficulty").value;
   const category = document.getElementById("category").value;
@@ -120,16 +182,18 @@ function addTask() {
   tasks.push({
     name: input.value,
     xp: parseInt(difficulty),
-    category: category
+    category
   });
 
   input.value = "";
-  saveData();
+  saveUserData();
   updateUI();
-}
+};
 
-function completeTask(index) {
+// 🔥 MUST BE window.completeTask
+window.completeTask = function (index) {
   document.getElementById("taskSound").play();
+
   let task = tasks[index];
   let oldLevel = Math.floor(totalXP / 100);
 
@@ -139,36 +203,25 @@ function completeTask(index) {
   let today = new Date().toDateString();
   if (lastCompleted !== today) {
     streak++;
-    localStorage.setItem("lastCompleted", today);
+    lastCompleted = today;
   }
 
   let newLevel = Math.floor(totalXP / 100);
   if (newLevel > oldLevel) {
-  document.getElementById("levelSound").play();
-
-  confetti({
-    particleCount: 150,
-    spread: 70,
-    origin: { y: 0.6 }
-  });
-
-  alert("🎉 LEVEL UP! You are now Level " + newLevel);
-}
-
+    document.getElementById("levelSound").play();
+    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+    alert("🎉 LEVEL UP! You are now Level " + newLevel);
+  }
 
   tasks.splice(index, 1);
-  saveData();
+  saveUserData();
   updateUI();
-}
+};
 
-function deleteTask(index) {
-  document.getElementById("failSound").play(); // ❌ failure sound
-
+// 🔥 MUST BE window.deleteTask
+window.deleteTask = function (index) {
+  document.getElementById("failSound").play();
   tasks.splice(index, 1);
-  saveData();
+  saveUserData();
   updateUI();
-}
-
-updateUI();
-
-
+};
