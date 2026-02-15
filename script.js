@@ -329,11 +329,19 @@ async function loadLeaderboard() {
         else if (rank === 2) medal = "🥈";
           else if (rank === 3) medal = "🥉";
 
-li.innerHTML = `
-  ${medal} <strong>#${rank}</strong> 
-  ${data.email} 
-  — ${data.totalXP || 0} XP
-`;
+          if (rank <= 3) {
+  li.innerHTML = `
+    ${medal}
+    ${data.email} — ${data.totalXP || 0} XP
+  `;
+} else {
+  li.innerHTML = `
+    #${rank}
+    ${data.email} — ${data.totalXP || 0} XP
+  `;
+}
+
+
 
 
     leaderboardList.appendChild(li);
