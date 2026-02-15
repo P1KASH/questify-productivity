@@ -52,6 +52,12 @@ let totalXP = 0;
 let stats = { knowledge: 0, strength: 0, focus: 0 };
 let streak = 0;
 let lastCompleted = null;
+
+// 🔥 NEW SYSTEMS
+let dailyEnergy = 100;
+let lastEnergyReset = new Date().toDateString();
+let weeklyBossProgress = 0;
+
 // ===== FIRESTORE SAVE =====
 async function saveUserData() {
   if (!auth.currentUser) return;
@@ -65,7 +71,11 @@ async function saveUserData() {
   tasks,
   stats,
   streak,
-  lastCompleted
+  lastCompleted,
+  dailyEnergy,
+  lastEnergyReset,
+  weeklyBossProgress
+
 });
 
 }
@@ -84,6 +94,10 @@ async function loadUserData() {
     stats = data.stats || { knowledge: 0, strength: 0, focus: 0 };
     streak = data.streak || 0;
     lastCompleted = data.lastCompleted || null;
+    dailyEnergy = data.dailyEnergy ?? 100;
+    lastEnergyReset = data.lastEnergyReset ?? new Date().toDateString();
+    weeklyBossProgress = data.weeklyBossProgress ?? 0;
+
   } else {
     // First-time user → create document
     await saveUserData();
@@ -157,6 +171,9 @@ onAuthStateChanged(auth, (user) => {
 function updateUI() {
   document.getElementById("level").innerText = Math.floor(totalXP / 100);
   document.getElementById("streak").innerText = streak;
+  let level = Math.floor(totalXP / 100);
+    document.getElementById("level").innerText = level;
+   document.getElementById("level").title = getTitle(level);
 
   let currentXP = totalXP % 100;
   document.getElementById("xp-bar").style.width = currentXP + "%";
@@ -212,9 +229,24 @@ window.completeTask = function (index) {
   document.getElementById("taskSound").play();
 
   let task = tasks[index];
+  // ⚡ Daily Energy Reset
+let todayEnergy = new Date().toDateString();
+if (lastEnergyReset !== todayEnergy) {
+  dailyEnergy = 100;
+  lastEnergyReset = todayEnergy;
+}
+
+// ⚡ Check if enough energy
+if (dailyEnergy < task.xp) {
+  alert("⚡ Not enough daily energy!");
+  return;
+}
+
+// ⚡ Deduct energy
+dailyEnergy -= task.xp;
+
   let oldLevel = Math.floor(totalXP / 100);
 
-  totalXP += task.xp;
   stats[task.category] += 1;
 
   let today = new Date().toDateString();
@@ -222,6 +254,27 @@ window.completeTask = function (index) {
     streak++;
     lastCompleted = today;
   }
+    // 🔥 Streak Multiplier
+let multiplier = 1;
+
+if (streak >= 10) {
+  multiplier = 1.5;
+} else if (streak >= 5) {
+  multiplier = 1.2;
+}
+
+let finalXP = Math.floor(task.xp * multiplier);
+
+totalXP += finalXP;
+// 👑 Weekly Boss Progress
+weeklyBossProgress++;
+
+if (weeklyBossProgress >= 5) {
+  totalXP += 50;
+  alert("👑 Weekly Boss Defeated! +50 Bonus XP");
+  weeklyBossProgress = 0;
+}
+
 
   let newLevel = Math.floor(totalXP / 100);
   if (newLevel > oldLevel) {
@@ -286,4 +339,11 @@ li.innerHTML = `
     leaderboardList.appendChild(li);
     rank++;
   });
+}
+function getTitle(level) {
+  if (level >= 50) return "🏆 Legend";
+  if (level >= 20) return "🔥 Elite";
+  if (level >= 10) return "⚔ Grinder";
+  if (level >= 5) return "🛡 Apprentice";
+  return "🌱 Beginner";
 }
